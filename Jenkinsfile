@@ -3,9 +3,9 @@ pipeline {
 
     tools {
         // Убедитесь, что в настройках Jenkins (Global Tool Configuration)
-        // настроен Maven с именем 'Maven' и Java с именем 'JDK 17' (или аналогичными)
+        // настроен Maven с именем 'Maven' и Java с именем 'Java 21' (или аналогичными)
         maven 'Maven'
-        jdk 'JDK 17'
+        jdk 'Java 21'
     }
 
     stages {
