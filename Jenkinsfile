@@ -22,9 +22,8 @@ pipeline {
             steps {
                 dir('backend') {
                     echo 'Running Maven build and tests...'
-                    // Выполняем сборку и запускаем тесты.
-                    // Флаг -B нужен для неинтерактивного режима (полезно для CI)
-                    sh 'mvn clean test -B'
+                    // Используем bat вместо sh для Windows
+                    bat 'mvn clean test -B'
                 }
             }
         }
@@ -33,8 +32,8 @@ pipeline {
             steps {
                 dir('backend') {
                     echo 'Generating Allure Report...'
-                    // Генерируем статический HTML-отчет
-                    sh 'mvn allure:report -B'
+                    // Используем bat вместо sh для Windows
+                    bat 'mvn allure:report -B'
                 }
             }
             post {
@@ -57,13 +56,10 @@ pipeline {
             steps {
                 dir('frontend') {
                     echo 'Installing npm dependencies...'
-                    // Используйте sh 'npm install' или sh 'npm ci', если у вас установлен Node.js плагин
-                    // NodeJS плагин нужно настроить в Jenkins (Global Tool Configuration)
-
                     // Пример (раскомментируйте, если нужно):
-                    // sh 'npm ci'
-                    // sh 'npm run build'
-                    // sh 'npm run test'
+                    // bat 'npm ci'
+                    // bat 'npm run build'
+                    // bat 'npm run test'
                 }
             }
         }
