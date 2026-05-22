@@ -34,5 +34,6 @@ CREATE TABLE IF NOT EXISTS scrum_poker.votes (
     room_id UUID NOT NULL,
     round_id UUID NOT NULL,
     participant_id UUID NOT NULL,
-    vote_value VARCHAR(20) NOT NULL -- ИСПРАВЛЕНО: value -> vote_value и длина
+    vote_value VARCHAR(20) NOT NULL,
+    voted_at TIMESTAMP NOT NULL -- ДОБАВЛЕНО
 );
