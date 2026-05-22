@@ -1,75 +1,87 @@
-import { FormEvent, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { roomApi } from '../api/roomApi'
-import { useRoomStore } from '../store/roomStore'
+import { FormEvent, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { roomApi } from '../api/roomApi';
+import { useRoomStore } from '../store/roomStore';
+import { useAuthStore } from '../store/authStore';
+import { useAuthUser } from '../hooks/useAuthUser'; // Импортируем наш новый хук
 
 export function HomePage() {
-  const navigate = useNavigate()
-  const setCurrentParticipant = useRoomStore((state) => state.setCurrentParticipant)
+  const navigate = useNavigate();
+  const setCurrentParticipant = useRoomStore((state) => state.setCurrentParticipant);
+  const { isAuthenticated, clearToken } = useAuthStore();
+  const user = useAuthUser(); // Получаем имя текущего пользователя
 
-  const [roomName, setRoomName] = useState('')
-  const [moderatorName, setModeratorName] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
+  const [roomName, setRoomName] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
-    setError(null)
-    setSubmitting(true)
+  async function handleCreateRoom(event: FormEvent) {
+    event.preventDefault();
+    setError(null);
+    setSubmitting(true);
 
     try {
-      const response = await roomApi.createRoom({
-        roomName,
-        moderatorName
-      })
+      const response = await roomApi.createRoom({ roomName });
 
-      setCurrentParticipant(response.participantId, moderatorName, 'MODERATOR')
-      navigate(`/room/${response.roomId}`)
+      // Сохраняем сессию модератора в localStorage
+      if (user) {
+        setCurrentParticipant(response.participantId, user.username, 'MODERATOR');
+      }
+
+      navigate(`/room/${response.roomId}`);
     } catch {
-      setError('Не удалось создать комнату')
+      setError('Не удалось создать комнату. Возможно, вы не авторизованы.');
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }
+
+  const renderAuthenticatedView = () => (
+    <form onSubmit={handleCreateRoom} className="form">
+      <label>
+        Название комнаты
+        <input
+          value={roomName}
+          onChange={(event) => setRoomName(event.target.value)}
+          placeholder="Название комнаты"
+          required
+        />
+      </label>
+
+      {error && <div className="error">{error}</div>}
+
+      <button disabled={submitting} type="submit">
+        {submitting ? 'Создаем...' : 'Создать комнату'}
+      </button>
+      <button onClick={clearToken} type="button" className="button-secondary">
+        Выйти
+      </button>
+    </form>
+  );
+
+  const renderGuestView = () => (
+    <div className="guest-actions">
+      <Link to="/login" className="button">
+        Войти
+      </Link>
+      <Link to="/register" className="button button-secondary">
+        Зарегистрироваться
+      </Link>
+    </div>
+  );
 
   return (
     <main className="page page-center">
       <section className="panel home-panel">
         <div className="hero-icon">♠</div>
-
         <h1>Scrum Poker</h1>
         <p className="muted">
-          Создай комнату для оценки задач. До 100 голосующих участников.
+          Создай комнату для оценки задач.
         </p>
 
-        <form onSubmit={handleSubmit} className="form">
-          <label>
-            Название комнаты
-            <input
-              value={roomName}
-              onChange={(event) => setRoomName(event.target.value)}
-              placeholder="Название комнаты"
-              required
-            />
-          </label>
+        {isAuthenticated() ? renderAuthenticatedView() : renderGuestView()}
 
-          <label>
-            Ваше имя
-            <input
-              value={moderatorName}
-              onChange={(event) => setModeratorName(event.target.value)}
-              placeholder="Имя пользователя"
-              required
-            />
-          </label>
-
-          {error && <div className="error">{error}</div>}
-
-          <button disabled={submitting} type="submit">
-            {submitting ? 'Создаем...' : 'Создать комнату'}
-          </button>
-        </form>
       </section>
     </main>
-  )
+  );
 }

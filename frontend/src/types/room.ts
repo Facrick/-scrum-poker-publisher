@@ -45,7 +45,6 @@ export interface Room {
 
 export interface CreateRoomRequest {
   roomName: string
-  moderatorName: string
 }
 
 export interface CreateRoomResponse {
@@ -71,7 +70,7 @@ export interface CastVoteRequest {
 }
 
 export interface UpdateRoomSettingsRequest {
-  moderatorId: string
+  // moderatorId убрали
   deckType: DeckType
   customDeck: string[]
   autoReveal: boolean

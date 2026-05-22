@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.UUID;
 
 @RestController
@@ -41,21 +42,15 @@ public class RoomController {
     }
 
     @PostMapping("/{roomId}/reveal")
-    public RoomResponse reveal(
-            @PathVariable UUID roomId,
-            @RequestParam UUID moderatorId
-    ) {
-        RoomResponse response = roomService.reveal(roomId, moderatorId);
+    public RoomResponse reveal(@PathVariable UUID roomId, Principal principal) {
+        RoomResponse response = roomService.reveal(roomId, principal.getName());
         roomEventPublisher.votesRevealed(roomId, response);
         return response;
     }
 
     @PostMapping("/{roomId}/reset")
-    public RoomResponse reset(
-            @PathVariable UUID roomId,
-            @RequestParam UUID moderatorId
-    ) {
-        RoomResponse response = roomService.reset(roomId, moderatorId);
+    public RoomResponse reset(@PathVariable UUID roomId, Principal principal) {
+        RoomResponse response = roomService.reset(roomId, principal.getName());
         roomEventPublisher.votesReset(roomId, response);
         return response;
     }
@@ -63,9 +58,10 @@ public class RoomController {
     @PutMapping("/{roomId}/settings")
     public RoomResponse updateSettings(
             @PathVariable UUID roomId,
-            @Valid @RequestBody UpdateRoomSettingsRequest request
+            @Valid @RequestBody UpdateRoomSettingsRequest request,
+            Principal principal
     ) {
-        RoomResponse response = roomService.updateSettings(roomId, request);
+        RoomResponse response = roomService.updateSettings(roomId, request, principal.getName());
         roomEventPublisher.roomUpdated(roomId, response);
         return response;
     }

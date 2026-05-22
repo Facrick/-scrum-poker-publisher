@@ -17,6 +17,7 @@ import com.company.scrumpoker.voting.entity.VoteEntity;
 import com.company.scrumpoker.voting.repository.VoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +43,8 @@ public class RoomService {
 
     @Transactional
     public CreateRoomResponse create(CreateRoomRequest request) {
+        String moderatorName = SecurityContextHolder.getContext().getAuthentication().getName();
+
         UUID roomId = UUID.randomUUID();
         UUID roundId = UUID.randomUUID();
         UUID moderatorId = UUID.randomUUID();
@@ -59,7 +62,7 @@ public class RoomService {
         ParticipantEntity moderator = ParticipantEntity.builder()
                 .id(moderatorId)
                 .roomId(roomId)
-                .name(request.moderatorName())
+                .name(moderatorName)
                 .role(ParticipantRole.MODERATOR)
                 .connected(true)
                 .joinedAt(Instant.now())
@@ -112,9 +115,9 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomResponse reveal(UUID roomId, UUID moderatorId) {
+    public RoomResponse reveal(UUID roomId, String username) {
         RoomEntity room = getRoomEntity(roomId);
-        requireModerator(roomId, moderatorId);
+        requireModerator(roomId, username);
 
         room.setStatus(RoomStatus.REVEALED);
         roomRepository.save(room);
@@ -123,9 +126,9 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomResponse reset(UUID roomId, UUID moderatorId) {
+    public RoomResponse reset(UUID roomId, String username) {
         RoomEntity room = getRoomEntity(roomId);
-        requireModerator(roomId, moderatorId);
+        requireModerator(roomId, username);
 
         voteRepository.deleteByRoomIdAndRoundId(roomId, room.getCurrentRoundId());
 
@@ -138,9 +141,9 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomResponse updateSettings(UUID roomId, UpdateRoomSettingsRequest request) {
+    public RoomResponse updateSettings(UUID roomId, UpdateRoomSettingsRequest request, String username) {
         RoomEntity room = getRoomEntity(roomId);
-        requireModerator(roomId, request.moderatorId());
+        requireModerator(roomId, username);
 
         RoomSettings settings = new RoomSettings(
                 request.deckType(),
@@ -204,16 +207,14 @@ public class RoomService {
         return FIBONACCI_DECK;
     }
 
-    public void requireModerator(UUID roomId, UUID participantId) {
-        ParticipantEntity participant = participantRepository.findById(participantId)
-                .orElseThrow(() -> new NotFoundException("Participant not found: " + participantId));
-
-        if (!participant.getRoomId().equals(roomId)) {
-            throw new BadRequestException("Participant does not belong to this room.");
-        }
-
-        if (participant.getRole() != ParticipantRole.MODERATOR) {
-            throw new BadRequestException("Only moderator can perform this action.");
+    public void requireModerator(UUID roomId, String username) {
+        List<ParticipantEntity> participants = participantRepository.findByRoomIdOrderByJoinedAtAsc(roomId);
+        
+        boolean isModerator = participants.stream()
+                .anyMatch(p -> p.getRole() == ParticipantRole.MODERATOR && p.getName().equals(username));
+                
+        if (!isModerator) {
+             throw new BadRequestException("Only the moderator can perform this action.");
         }
     }
 

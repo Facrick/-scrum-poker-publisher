@@ -30,17 +30,15 @@ export const roomApi = {
     return response.data
   },
 
-  async reveal(roomId: string, moderatorId: string): Promise<Room> {
-    const response = await http.post<Room>(`/api/rooms/${roomId}/reveal`, null, {
-      params: { moderatorId }
-    })
+  // Убрали moderatorId
+  async reveal(roomId: string): Promise<Room> {
+    const response = await http.post<Room>(`/api/rooms/${roomId}/reveal`)
     return response.data
   },
 
-  async reset(roomId: string, moderatorId: string): Promise<Room> {
-    const response = await http.post<Room>(`/api/rooms/${roomId}/reset`, null, {
-      params: { moderatorId }
-    })
+  // Убрали moderatorId
+  async reset(roomId: string): Promise<Room> {
+    const response = await http.post<Room>(`/api/rooms/${roomId}/reset`)
     return response.data
   },
 

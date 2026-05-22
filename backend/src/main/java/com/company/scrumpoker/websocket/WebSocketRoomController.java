@@ -10,7 +10,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 
-import java.util.Map;
+import java.security.Principal;
 import java.util.UUID;
 
 @Controller
@@ -24,29 +24,34 @@ public class WebSocketRoomController {
     @MessageMapping("/rooms/{roomId}/vote")
     public void vote(
             @DestinationVariable UUID roomId,
-            @Payload CastVoteRequest request
+            @Payload CastVoteRequest request,
+            Principal principal
     ) {
+        if (principal == null) {
+            return;
+        }
+        // В будущем здесь можно добавить проверку, что principal.getName() соответствует участнику в request
         RoomResponse response = votingService.castVote(roomId, request);
         roomEventPublisher.voteCast(roomId, response);
     }
 
     @MessageMapping("/rooms/{roomId}/reveal")
-    public void reveal(
-            @DestinationVariable UUID roomId,
-            @Payload Map<String, String> payload
-    ) {
-        UUID moderatorId = UUID.fromString(payload.get("moderatorId"));
-        RoomResponse response = roomService.reveal(roomId, moderatorId);
+    public void reveal(@DestinationVariable UUID roomId, Principal principal) {
+        if (principal == null) {
+            return;
+        }
+        // Явно передаем имя пользователя в сервис
+        RoomResponse response = roomService.reveal(roomId, principal.getName());
         roomEventPublisher.votesRevealed(roomId, response);
     }
 
     @MessageMapping("/rooms/{roomId}/reset")
-    public void reset(
-            @DestinationVariable UUID roomId,
-            @Payload Map<String, String> payload
-    ) {
-        UUID moderatorId = UUID.fromString(payload.get("moderatorId"));
-        RoomResponse response = roomService.reset(roomId, moderatorId);
+    public void reset(@DestinationVariable UUID roomId, Principal principal) {
+        if (principal == null) {
+            return;
+        }
+        // Явно передаем имя пользователя в сервис
+        RoomResponse response = roomService.reset(roomId, principal.getName());
         roomEventPublisher.votesReset(roomId, response);
     }
 }
