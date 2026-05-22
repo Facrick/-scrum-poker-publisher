@@ -4,11 +4,10 @@ import type { DeckType, Room, RoomSettings } from '../../types/room'
 
 interface Props {
   room: Room
-  moderatorId: string
   onRoomUpdate: (room: Room) => void
 }
 
-export function RoomSettingsPanel({ room, moderatorId, onRoomUpdate }: Props) {
+export function RoomSettingsPanel({ room, onRoomUpdate }: Props) {
   const [settings, setSettings] = useState<RoomSettings>(room.settings)
   const [customDeckText, setCustomDeckText] = useState(room.settings.customDeck.join(', '))
   const [saving, setSaving] = useState(false)
@@ -30,8 +29,8 @@ export function RoomSettingsPanel({ room, moderatorId, onRoomUpdate }: Props) {
         .map((item) => item.trim())
         .filter(Boolean)
 
+      // moderatorId больше не передается
       const updated = await roomApi.updateSettings(room.id, {
-        moderatorId,
         ...settings,
         customDeck
       })

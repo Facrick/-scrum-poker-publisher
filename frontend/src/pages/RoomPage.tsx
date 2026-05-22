@@ -110,10 +110,10 @@ export function RoomPage() {
           )}
 
           <div className="actions">
-            {isModerator && participantId && (
+            {isModerator && (
               <>
                 <button
-                  onClick={() => sendReveal(roomId)} // Убрали participantId
+                  onClick={() => sendReveal(roomId)}
                   disabled={room.status === 'REVEALED'}
                 >
                   Открыть голоса
@@ -121,7 +121,7 @@ export function RoomPage() {
 
                 <button
                   className="secondary"
-                  onClick={() => sendReset(roomId)} // Убрали participantId
+                  onClick={() => sendReset(roomId)}
                 >
                   Новый раунд
                 </button>
@@ -135,7 +135,7 @@ export function RoomPage() {
         <div className="side-column">
           <ParticipantsList participants={room.participants} />
 
-          {isModerator && ( // participantId больше не нужен для проверки
+          {isModerator && (
             <RoomSettingsPanel
               room={room}
               onRoomUpdate={setRoom}
