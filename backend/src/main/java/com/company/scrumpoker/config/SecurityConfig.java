@@ -38,7 +38,7 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/ws-native/**" // Явно разрешаем HTTP handshake для WebSocket
+                                "/ws-native/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/rooms/*/join").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/rooms/*").permitAll()
@@ -54,7 +54,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        // Добавляем URL фронтенда и localhost для локальной разработки
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173", 
+                "https://scrum-poker-publisher.vercel.app"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         
