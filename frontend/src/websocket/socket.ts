@@ -11,35 +11,29 @@ interface ConnectOptions {
   onError?: (message: string) => void
 }
 
-function resolveWebSocketUrl(): string {
-  const envUrl = import.meta.env.VITE_WS_URL;
-
-  if (envUrl) {
-    return envUrl;
-  }
-
-  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-  const host = window.location.hostname;
-
-  return `${protocol}://${host}:8080/ws-native`;
-}
+// Просто берем готовый URL из переменной окружения.
+const brokerURL = import.meta.env.VITE_WS_URL;
 
 export function connectRoomSocket(options: ConnectOptions) {
   disconnectRoomSocket()
 
-  console.log('Attempting to connect to WebSocket at:', resolveWebSocketUrl());
+  // Проверяем наличие переменной окружения
+  if (!brokerURL) {
+    console.error("VITE_WS_URL is not defined! Please check your .env file for local development or Vercel environment variables for deployment.");
+    options.onError?.("WebSocket URL is not configured.");
+    return;
+  }
+
+  console.log('Attempting to connect to WebSocket at:', brokerURL);
 
   const token = useAuthStore.getState().token;
 
   client = new Client({
-    brokerURL: resolveWebSocketUrl(),
+    brokerURL,
     connectHeaders: {
       ...(token && { Authorization: `Bearer ${token}` })
     },
     reconnectDelay: 5000,
-    heartbeatIncoming: 4000,
-    heartbeatOutgoing: 4000,
-    debug: (msg) => console.log('STOMP DEBUG:', msg),
     onConnect: () => {
       console.log('STOMP: Connected successfully!');
       client?.subscribe(`/topic/rooms/${options.roomId}`, (message) => {
@@ -49,15 +43,9 @@ export function connectRoomSocket(options: ConnectOptions) {
     },
     onStompError: (frame) => {
       console.error('STOMP: Broker reported error:', frame.headers['message']);
-      console.error('STOMP: Additional details:', frame.body);
-      options.onError?.(frame.headers['message'] ?? 'WebSocket STOMP error')
     },
     onWebSocketError: (event) => {
       console.error('STOMP: WebSocket error observed:', event);
-      options.onError?.('WebSocket connection error')
-    },
-    onWebSocketClose: (event) => {
-      console.log('STOMP: WebSocket connection closed.', event);
     }
   })
 

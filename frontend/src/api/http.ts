@@ -3,10 +3,12 @@ import { useAuthStore } from '../store/authStore';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
+// Проверяем наличие переменной окружения
 if (!apiUrl) {
-  console.error("VITE_API_URL is not defined! Please check your .env file or Vercel environment variables.");
-  // Можно выбросить ошибку или использовать fallback URL
-  // throw new Error("VITE_API_URL is not defined!");
+  console.error("VITE_API_URL is not defined! Please check your .env file for local development or Vercel environment variables for deployment.");
+  // В продакшене лучше выбросить ошибку, чтобы приложение не работало некорректно
+  // В локальной разработке можно использовать fallback, но для продакшена это критично
+  throw new Error("VITE_API_URL is not configured.");
 }
 
 export const http = axios.create({
