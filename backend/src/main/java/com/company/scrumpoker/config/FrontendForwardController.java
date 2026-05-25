@@ -8,6 +8,8 @@ public class FrontendForwardController {
 
     @RequestMapping(value = {
             "/",
+            "/login", // Добавлено
+            "/register", // Добавлено
             "/room/{path:[^\\.]*}",
             "/room/{path:[^\\.]*}/join",
             "/404"

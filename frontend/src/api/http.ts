@@ -1,17 +1,21 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
-// VITE_API_URL должен содержать полный путь к вашему API, например, http://localhost:8080
-const apiUrl = import.meta.env.VITE_API_URL || '';
+const apiUrl = import.meta.env.VITE_API_URL;
+
+if (!apiUrl) {
+  console.error("VITE_API_URL is not defined! Please check your .env file or Vercel environment variables.");
+  // Можно выбросить ошибку или использовать fallback URL
+  // throw new Error("VITE_API_URL is not defined!");
+}
 
 export const http = axios.create({
-  baseURL: apiUrl,
+  baseURL: `${apiUrl}/api`, // Добавляем /api здесь, чтобы в VITE_API_URL был только базовый URL бэкенда
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Создаем перехватчик запросов
 http.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
