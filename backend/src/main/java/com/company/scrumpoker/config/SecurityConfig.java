@@ -54,10 +54,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Добавляем URL фронтенда и localhost для локальной разработки
+        // Добавляем URL фронтенда и бэкенда
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173", 
-                "https://scrum-poker-publisher.vercel.app"
+                "https://scrum-poker-publisher.vercel.app",
+                "https://scrum-poker-backend-l2wo.onrender.com"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
