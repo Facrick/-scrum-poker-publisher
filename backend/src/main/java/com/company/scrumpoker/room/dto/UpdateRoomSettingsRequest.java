@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public record UpdateRoomSettingsRequest(
-        // moderatorId больше не нужен
         @NotNull
         DeckType deckType,
 

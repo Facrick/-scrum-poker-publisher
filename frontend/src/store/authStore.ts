@@ -9,7 +9,6 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>()(
-  // persist позволяет сохранять состояние в localStorage
   persist(
     (set, get) => ({
       token: null,
@@ -18,8 +17,8 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: () => !!get().token,
     }),
     {
-      name: 'auth-storage', // имя ключа в localStorage
-      storage: createJSONStorage(() => localStorage), // указываем, что хранилище - localStorage
+      name: 'auth-storage',
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

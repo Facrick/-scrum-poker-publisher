@@ -1,6 +1,7 @@
 package com.company.scrumpoker.user.service;
 
 import com.company.scrumpoker.common.exception.BadRequestException;
+import com.company.scrumpoker.common.exception.NotFoundException;
 import com.company.scrumpoker.jwt.JwtService;
 import com.company.scrumpoker.user.dto.AuthRequest;
 import com.company.scrumpoker.user.dto.AuthResponse;
@@ -38,7 +39,6 @@ public class AuthService {
 
         userRepository.save(user);
 
-        // Используем стандартного UserDetails для генерации токена
         var userDetails = new User(user.getUsername(), user.getPassword(), new ArrayList<>());
         var jwtToken = jwtService.generateToken(userDetails);
 
@@ -46,7 +46,6 @@ public class AuthService {
     }
 
     public AuthResponse login(AuthRequest request) {
-        // Эта строчка проверит логин и пароль. Если не совпадает - выбросит исключение.
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.username(),
@@ -55,7 +54,7 @@ public class AuthService {
         );
 
         var user = userRepository.findByUsername(request.username())
-                .orElseThrow(); // Пользователь точно есть, раз authenticationManager пропустил
+                .orElseThrow(() -> new NotFoundException("User not found: " + request.username()));
 
         var userDetails = new User(user.getUsername(), user.getPassword(), new ArrayList<>());
         var jwtToken = jwtService.generateToken(userDetails);

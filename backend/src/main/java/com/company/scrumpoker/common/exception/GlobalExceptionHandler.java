@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     ResponseEntity<ApiError> handleUnknown(Exception exception) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, List.of(exception.getMessage()));
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, List.of("An unexpected error occurred"));
     }
 
     @MessageExceptionHandler

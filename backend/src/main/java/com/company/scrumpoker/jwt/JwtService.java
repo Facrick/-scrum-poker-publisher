@@ -18,11 +18,9 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    // Секретный ключ для подписи токена. В реальном приложении его нужно вынести в переменные окружения.
     @Value("${app.jwt.secret:c3BydW5nLWJvb3Qtc2VjdXJpdHktand0LXR1dG9yaWFsLWV4YW1wbGUtc2VjcmV0LWtleQo=}")
     private String secretKey;
 
-    // Время жизни токена (в миллисекундах). По умолчанию - 24 часа.
     @Value("${app.jwt.expiration:86400000}")
     private long jwtExpiration;
 

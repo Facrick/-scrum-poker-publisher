@@ -2,9 +2,16 @@
 *.iml
 
 backend/target/
+backend/.allure/
+backend/Jenkins/
+backend/ajcore.*.txt
 
 frontend/node_modules/
 frontend/dist/
+frontend/tsconfig.tsbuildinfo
+
+dist/
+*.rar
 
 .DS_Store
 Thumbs.db

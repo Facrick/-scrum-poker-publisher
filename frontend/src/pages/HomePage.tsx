@@ -3,13 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { roomApi } from '../api/roomApi';
 import { useRoomStore } from '../store/roomStore';
 import { useAuthStore } from '../store/authStore';
-import { useAuthUser } from '../hooks/useAuthUser'; // Импортируем наш новый хук
+import { useAuthUser } from '../hooks/useAuthUser';
 
 export function HomePage() {
   const navigate = useNavigate();
   const setCurrentParticipant = useRoomStore((state) => state.setCurrentParticipant);
   const { isAuthenticated, clearToken } = useAuthStore();
-  const user = useAuthUser(); // Получаем имя текущего пользователя
+  const user = useAuthUser();
 
   const [roomName, setRoomName] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +23,6 @@ export function HomePage() {
     try {
       const response = await roomApi.createRoom({ roomName });
 
-      // Сохраняем сессию модератора в localStorage
       if (user) {
         setCurrentParticipant(response.participantId, user.username, 'MODERATOR');
       }

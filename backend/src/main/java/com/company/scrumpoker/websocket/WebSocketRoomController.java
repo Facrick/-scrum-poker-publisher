@@ -30,7 +30,6 @@ public class WebSocketRoomController {
         if (principal == null) {
             return;
         }
-        // В будущем здесь можно добавить проверку, что principal.getName() соответствует участнику в request
         RoomResponse response = votingService.castVote(roomId, request);
         roomEventPublisher.voteCast(roomId, response);
     }
@@ -40,7 +39,6 @@ public class WebSocketRoomController {
         if (principal == null) {
             return;
         }
-        // Явно передаем имя пользователя в сервис
         RoomResponse response = roomService.reveal(roomId, principal.getName());
         roomEventPublisher.votesRevealed(roomId, response);
     }
@@ -50,7 +48,6 @@ public class WebSocketRoomController {
         if (principal == null) {
             return;
         }
-        // Явно передаем имя пользователя в сервис
         RoomResponse response = roomService.reset(roomId, principal.getName());
         roomEventPublisher.votesReset(roomId, response);
     }

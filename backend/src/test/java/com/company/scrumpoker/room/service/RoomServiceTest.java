@@ -16,7 +16,6 @@ import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
-import io.qameta.allure.Step;
 import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -99,30 +98,25 @@ class RoomServiceTest {
     void requireModerator_whenUserIsNotModerator_shouldThrowException() {
         UUID roomId = UUID.randomUUID();
         String currentUsername = "some-user";
-        
-        var moderator = ParticipantEntity.builder().name("moderator-user").role(ParticipantRole.MODERATOR).build();
-        var participant = ParticipantEntity.builder().name(currentUsername).role(ParticipantRole.PARTICIPANT).build();
 
-        when(participantRepository.findByRoomIdOrderByJoinedAtAsc(roomId)).thenReturn(List.of(moderator, participant));
+        when(participantRepository.existsByRoomIdAndRoleAndName(roomId, ParticipantRole.MODERATOR, currentUsername))
+                .thenReturn(false);
 
-        // ИСПРАВЛЕНО: Передаем имя пользователя явным аргументом
         assertThatThrownBy(() -> roomService.requireModerator(roomId, currentUsername))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("Only the moderator can perform this action.");
     }
-    
+
     @Test
     @Story("Проверка прав модератора")
     @DisplayName("Успешная проверка, если действие выполняет модератор")
     void requireModerator_whenUserIsModerator_shouldNotThrowException() {
         UUID roomId = UUID.randomUUID();
         String currentUsername = "moderator-user";
-        
-        var moderator = ParticipantEntity.builder().name(currentUsername).role(ParticipantRole.MODERATOR).build();
 
-        when(participantRepository.findByRoomIdOrderByJoinedAtAsc(roomId)).thenReturn(List.of(moderator));
+        when(participantRepository.existsByRoomIdAndRoleAndName(roomId, ParticipantRole.MODERATOR, currentUsername))
+                .thenReturn(true);
 
-        // ИСПРАВЛЕНО: Передаем имя пользователя явным аргументом. Если исключение не выброшено, тест пройдет.
         roomService.requireModerator(roomId, currentUsername);
     }
 

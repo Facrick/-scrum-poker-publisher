@@ -2,6 +2,7 @@ package com.company.scrumpoker.config;
 
 import com.company.scrumpoker.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -31,10 +32,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
-    private static final String[] ALLOWED_ORIGINS = {
-            "http://localhost:5173",
-            "http://127.0.0.1:5173"
-    };
+    @Value("${app.allowed-origins}")
+    private List<String> allowedOrigins;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
@@ -45,7 +44,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-native")
-                .setAllowedOrigins(ALLOWED_ORIGINS);
+                .setAllowedOrigins(allowedOrigins.toArray(String[]::new));
     }
 
     @Override

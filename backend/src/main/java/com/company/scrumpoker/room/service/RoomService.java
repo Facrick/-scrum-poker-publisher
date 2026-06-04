@@ -208,13 +208,8 @@ public class RoomService {
     }
 
     public void requireModerator(UUID roomId, String username) {
-        List<ParticipantEntity> participants = participantRepository.findByRoomIdOrderByJoinedAtAsc(roomId);
-        
-        boolean isModerator = participants.stream()
-                .anyMatch(p -> p.getRole() == ParticipantRole.MODERATOR && p.getName().equals(username));
-                
-        if (!isModerator) {
-             throw new BadRequestException("Only the moderator can perform this action.");
+        if (!participantRepository.existsByRoomIdAndRoleAndName(roomId, ParticipantRole.MODERATOR, username)) {
+            throw new BadRequestException("Only the moderator can perform this action.");
         }
     }
 
